@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="rotating_ads" title="[bd] Rotating Ads" version_string="1.6.2" version_id="12" url="" install_callback_class="RotatingAds_Installer" install_callback_method="install" uninstall_callback_class="RotatingAds_Installer" uninstall_callback_method="uninstall">
+  <admin_navigation>
+    <navigation navigation_id="rotating_ads" parent_navigation_id="stylesAndTemplates" display_order="9999" link="rotating-ads" admin_permission_id="rotating_ads" debug_only="0" hide_no_children="0"/>
+  </admin_navigation>
+  <admin_permissions>
+    <admin_permission admin_permission_id="rotating_ads" display_order="9999"/>
+  </admin_permissions>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="rotating_ads_delete"><![CDATA[<xen:title>{xen:phrase rotating_ads_confirm_deletion_of_item}: {$item.name}</xen:title>
+<xen:h1>{xen:phrase rotating_ads_confirm_deletion_of_item}</xen:h1>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:adminlink 'rotating-ads/edit', $item}">{$item.name}</xen:breadcrumb>
+</xen:navigation>
+
+<xen:require css="delete_confirmation.css" />
+
+<xen:form action="{xen:adminlink 'rotating-ads/delete', $item}" class="deleteConfirmForm formOverlay">
+
+	<p>{xen:phrase rotating_ads_please_confirm_that_you_want_to_delete_following_item}:</p>
+	<strong><a href="{xen:adminlink 'rotating-ads/edit', $item}">{$item.name}</a></strong>
+
+	<xen:submitunit save="{xen:phrase delete}" />
+	
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="rotating_ads_edit"><![CDATA[<xen:title>{xen:if '{$item.item_id}', '{xen:phrase rotating_ads_edit_item}', '{xen:phrase rotating_ads_add_new_item}'}</xen:title>
+
+<style>
+.RotatingAds_PositionCustom {
+}
+	.RotatingAds_PositionCustom input {
+		width: 40% !important;
+	}
+	.RotatingAds_PositionCustom select {
+		width: 20% !important;
+	}
+</style>
+
+<xen:form action="{xen:adminlink 'rotating-ads/save'}" class="AutoValidator" data-redirect="yes">
+	<xen:textboxunit label="{xen:phrase rotating_ads_name}:" name="name" value="{$item.name}" data-liveTitleTemplate="{xen:if {$item.item_id},
+		'{xen:phrase rotating_ads_edit_item}: <em>%s</em>',
+		'{xen:phrase rotating_ads_add_new_item}: <em>%s</em>'}" />
+		
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase rotating_ads_position}:</dt>
+		<dd>
+			<ul>
+				<li>
+					<xen:select name="position" value="{$item.position}" inputclass="RotatingAds_PositionSelector" data-customselector=".RotatingAds_PositionCustom">
+						<xen:option value="">&nbsp;</xen:option>
+						<xen:options source="$availablePositions" />
+					</xen:select>
+				</li>
+				<li class="RotatingAds_PositionCustom">
+					<xen:textbox name="position_custom" value="{$item.position}" placeholder="{xen:phrase rotating_ads_you_can_select_predefined_position_or_enter_custom}" />
+					<xen:select name="position_relative">
+						<xen:options source="$availablePositionRelatives" />
+					</xen:select>
+				</li>
+		</dd>
+	</dl>
+
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase rotating_ads_type}:</dt>
+		<dd>
+			<xen:select name="type" value="{$type}" inputclass="RotatingAds_TypeSelector" data-prefix="type_">
+				<xen:option value="link">{xen:phrase rotating_ads_type_link}</xen:option>
+				<xen:option value="slider">{xen:phrase rotating_ads_type_slider}</xen:option>
+			</xen:select>
+		</dd>
+	</dl>
+	
+	<div id="type_link">
+	<xen:textboxunit label="{xen:phrase rotating_ads_link}:" name="link" value="{$item.link}" hint="{xen:phrase optional}"/>
+	<xen:textboxunit label="{xen:phrase rotating_ads_html}:" name="html" value="{$item.html}" rows="5"/>
+	</div>
+
+	<div id="type_slider">
+	<xen:textboxunit label="{xen:phrase rotating_ads_type_slider_width}:" name="slider[width]" value="{$slider.width}" />
+	<xen:textboxunit label="{xen:phrase rotating_ads_type_slider_height}:" name="slider[height]" value="{$slider.height}" />
+	<dl class="ctrlUnit">
+		<dt>&nbsp;</dt>
+		<dd>
+		<ul>
+			<xen:if is="{$slider}">
+				<xen:foreach loop="$slider.slides" key="$counter" value="$slide">
+				<li>
+					<xen:textbox name="slider[slides][{$counter}][link]" value="{$slide.link}" placeholder="http://" size="15" />
+					<xen:textbox name="slider[slides][{$counter}][image]" value="{$slide.image}" placeholder="http://...jpg|png|gif" size="15" />
+					<xen:textbox name="slider[slides][{$counter}][order]" value="{xen:calc '{$counter} * 10'}" placeholder="{xen:phrase display_order}" size="15" inputclass="RotatingAds_SlideOrder" />
+				</li>
+				</xen:foreach>
+			</xen:if>
+		
+			<li class="RotatingAds_SlidesListener">
+				<xen:textbox name="slider[slides][{xen:count {$slider.slides}}][link]" value="" placeholder="http://" size="15" />
+				<xen:textbox name="slider[slides][{xen:count {$slider.slides}}][image]" value="" placeholder="http://...jpg|png|gif" size="15" />
+				<xen:textbox name="slider[slides][{xen:count {$slider.slides}}][order]" value="{xen:calc '{xen:count {$slider.slides}} * 10'}" placeholder="{xen:phrase display_order}" size="15" inputclass="RotatingAds_SlideOrder" />
+			</li>
+		</ul>
+		</dd>
+	</dl>
+	</div>
+
+	<dl class="ctrlUnit">
+		<dt>{xen:phrase rotating_ads_expire_date}:</dt>
+		<dd>
+			<ul>
+				<li>
+					<xen:checkbox label="">
+						<xen:option name="has_expire_date" value="1" selected="{$item.expire_date} > 0" id="has_expire_date" inputclass="Disabler">{xen:phrase rotating_ads_has_expire_date}</xen:option>
+					</xen:checkbox>
+				</li>
+				<li><xen:textbox name="expire_date" value="{xen:if '{$item.expire_date} > 0', '{xen:date {$item.expire_date}, 'Y-m-d'}'}" type="date" id="has_expire_date_Disabler"/></li>
+		</dd>
+	</dl>
+	
+	<xen:checkboxunit
+		label="{xen:phrase rotating_ads_target_user_groups}:"
+		name="options[user_groups]"
+		class="checkboxColumns">
+		<xen:options source="$preparedUserGroups" />
+		<xen:explain>{xen:phrase rotating_ads_target_user_groups_explain}</xen:explain>
+	</xen:checkboxunit>
+
+	<xen:submitunit save="{xen:phrase rotating_ads_save_item}">
+		<input type="button" name="delete" value="{xen:phrase rotating_ads_delete_item}"
+			accesskey="d" class="button OverlayTrigger"
+			data-href="{xen:adminlink rotating-ads/delete, $item}"
+			{xen:if '!{$item.item_id}', 'style="display: none"'}
+		/>
+	</xen:submitunit>
+	
+	<input type="hidden" name="item_id" value="{$item.item_id}" />
+</xen:form>
+<script type="text/javascript">
+/** @param {jQuery} $ jQuery Object */
+!function($, window, document, _undefined) {
+	XenForo.RotatingAds_PositionSelector = function($select) { this.__construct($select); };
+	XenForo.RotatingAds_PositionSelector.prototype = {
+		__construct: function($select) {
+			this.$select = $select;
+			this.$custom = $($select.data('customselector'));
+			this.$select.change($.context(this, 'change'));
+
+			this.change(null, true);
+		},
+
+		change: function(e, init) {
+			var $custom = this.$custom;
+			var speed = init ? 0 : XenForo.speed.fast
+
+			if (this.$select.val() != '') {
+				$custom.xfFadeUp(speed, null, XenForo.speed.fast, 'easeInBack');;
+			} else {
+				$custom.xfFadeDown(speed, init ? null : function(e) {
+					$custom.focus().select();
+				});
+			}
+		}
+	};
+
+	// *********************************************************************
+
+	XenForo.RotatingAds_TypeSelector = function($select) { this.__construct($select); };
+	XenForo.RotatingAds_TypeSelector.prototype = {
+		__construct: function($select) {
+			this.$select = $select;
+			this.types = new Array();
+			this.$select.change($.context(this, 'change'));
+			this.prefix = $select.data('prefix');
+
+			var _this = this;
+			this.$select.find('option').each(function() {
+				_this.types.push(this.value);
+			});
+
+			this.change(null, true);
+		},
+
+		change: function(e, init) {
+			var speed = init ? 0 : XenForo.speed.fast;
+
+			for (var i = 0; i < this.types.length; i++) {
+				var $target = $('#' + this.prefix + this.types[i]);
+				if (this.$select.val() != this.types[i]) {
+					$target.xfFadeUp(speed, null, XenForo.speed.fast, 'easeInBack');;
+				} else {
+					$target.xfFadeDown(speed, init ? null : function(e) {
+						$target.find('input').focus().select();
+					});
+				}
+			}
+		}
+	};
+
+	// *********************************************************************
+
+	XenForo.RotatingAds_SlidesListener = function($element) { this.__construct($element); };
+	XenForo.RotatingAds_SlidesListener.prototype = {
+		__construct: function($element) {
+			$element.one('keypress', $.context(this, 'createChoice'));
+console.log($element);
+			this.$element = $element;
+			if (!this.$base) {
+				this.$base = $element.clone();
+			}
+		},
+
+		createChoice: function() {
+			var $new = this.$base.clone(),
+				nextCounter = this.$element.parent().children().length;
+
+			$new.find('input[name]').each(function() {
+				var $this = $(this);
+				$this.attr('name', $this.attr('name').replace(/\[(\d+)\]/, '[' + nextCounter + ']'));
+			});
+			
+			$new.find('.RotatingAds_SlideOrder').val(nextCounter * 10);
+
+			$new.find('*[id]').each(function() {
+				var $this = $(this);
+				$this.removeAttr('id');
+				XenForo.uniqueId($this);
+
+				if (XenForo.formCtrl) {
+					XenForo.formCtrl.clean($this);
+				}
+			});
+
+			$new.xfInsert('insertAfter', this.$element);
+
+			this.__construct($new);
+		}
+	};
+
+	// *********************************************************************
+
+	XenForo.register('select.RotatingAds_PositionSelector', 'XenForo.RotatingAds_PositionSelector');
+	XenForo.register('select.RotatingAds_TypeSelector', 'XenForo.RotatingAds_TypeSelector');
+	XenForo.register('.RotatingAds_SlidesListener', 'XenForo.RotatingAds_SlidesListener');
+
+}
+(jQuery, this, document);
+</script>]]></template>
+    <template title="rotating_ads_import"><![CDATA[<xen:title>{xen:phrase rotating_ads_import_items}</xen:title>
+
+<xen:form action="{xen:adminlink 'rotating-ads/import'}" upload="true">
+	<xen:uploadunit label="{xen:phrase rotating_ads_import_from_uploaded_file}:" name="upload_file" />
+	<xen:textboxunit label="{xen:phrase rotating_ads_import_from_file_on_server}:" name="server_file" />
+	
+	<xen:submitunit save="{xen:phrase rotating_ads_import_items}" />
+	<input type="hidden" name="_xfConfirm" value="1" />
+</xen:form>]]></template>
+    <template title="rotating_ads_list"><![CDATA[<xen:title>{xen:phrase rotating_ads_items}</xen:title>
+
+<xen:topctrl>
+	<a href="{xen:adminlink 'rotating-ads/export'}" class="button">{xen:phrase export}</a>
+	<a href="{xen:adminlink 'rotating-ads/import'}" class="button">{xen:phrase import}</a>
+	<a href="{xen:adminlink 'rotating-ads/add'}" class="button" accesskey="a">+ {xen:phrase rotating_ads_add_new_item}</a>
+</xen:topctrl>
+
+<xen:require css="filter_list.css" />
+<xen:require js="js/xenforo/filter_list.js" />
+
+<xen:form action="{xen:adminlink 'rotating-ads'}" class="section">
+
+	<h2 class="subHeading">
+		<xen:include template="filter_list_controls" />
+		{xen:phrase rotating_ads_items}
+	</h2>
+
+	<ol class="FilterList Scrollable">
+		<xen:foreach loop="$itemsGrouped" key="$position" value="$positionInfo">
+			<xen:if hascontent="true">
+				<li>
+					<h3 class="textHeading">
+						{$positionInfo.title}
+						<span class="count">
+							({xen:number {xen:count {$positionInfo.items}}} / <span id="RotatingAds_PositionAdsMaximum-{$positionInfo.positionSafe}">{xen:number {$positionAds.{$position}}}</span> {xen:phrase rotating_ads_maximum},
+							<a href="{xen:adminlink 'rotating-ads/increase', $position}" class="RotatingAds_PositionAdsLink" data-targetselector="#RotatingAds_PositionAdsMaximum-{$positionInfo.positionSafe}">{xen:phrase rotating_ads_increase}</a>,
+							<a href="{xen:adminlink 'rotating-ads/decrease', $position}" class="RotatingAds_PositionAdsLink" data-targetselector="#RotatingAds_PositionAdsMaximum-{$positionInfo.positionSafe}">{xen:phrase rotating_ads_decrease}</a>)
+						</span>
+					</h3>
+					<ol>
+						<xen:contentcheck>
+							<xen:foreach loop="$positionInfo.items" value="$item">
+								<xen:listitem
+									id="{$item.item_id}"
+									href="{xen:adminlink 'rotating-ads/edit', $item}"
+									label="{$item.name}"
+									labelclass="{xen:if '{$item.is_disabled}', 'disabled'}"
+									snippet="{$item.link}{xen:if '{$item.expire_date} > 0', ', {xen:phrase rotating_ads_expire_date}: {xen:date {$item.expire_date}}'}"
+									delete="{xen:adminlink 'rotating-ads/delete', $item}">
+									<xen:popup title="{xen:phrase controls}" ctrlclass="toolsCtrl">
+										<xen:link href="{xen:adminlink 'rotating-ads/disable', $item, '_xfToken={$visitor.csrf_token_page}'}" displayif="!{$item.is_disabled}">{xen:phrase disable}</xen:link>
+										<xen:link href="{xen:adminlink 'rotating-ads/enable', $item, '_xfToken={$visitor.csrf_token_page}'}" displayif="{$item.is_disabled}">{xen:phrase enable}</xen:link>
+										<xen:link href="{xen:adminlink 'rotating-ads/duplicate', $item, '_xfToken={$visitor.csrf_token_page}'}">{xen:phrase rotating_ads_duplicate}</xen:link>
+										<xen:link href="{xen:adminlink 'rotating-ads/edit', $item}">{xen:phrase edit}</xen:link>
+										<xen:link href="{xen:adminlink 'rotating-ads/delete', $item}">{xen:phrase delete}</xen:link>
+									</xen:popup>
+								</xen:listitem>
+							</xen:foreach>
+						</xen:contentcheck>
+					</ol>
+				</li>
+			</xen:if>
+		</xen:foreach>
+	</ol>
+
+	<p class="sectionFooter">{xen:phrase showing_x_of_y_items, 'count=<span class="FilterListCount">{xen:count $items}</span>', 'total={xen:count $items}'}</p>
+
+</xen:form>
+<script type="text/javascript">
+/** @param {jQuery} $ jQuery Object */
+!function($, window, document, _undefined) {
+	XenForo.RotatingAds_PositionAdsLink = function($link) { this.__construct($link); };
+	XenForo.RotatingAds_PositionAdsLink.prototype = {
+		__construct: function($link) {
+			this.$target = $($link.data('targetselector'));
+			this.url = $link.attr('href');
+			$link.click($.context(this, 'click'));
+		},
+
+		click: function(e) {
+			e.preventDefault();
+
+			if (this.xhr) {
+				this.xhr.abort();
+			}
+
+			this.xhr = XenForo.ajax(
+				this.url,
+				{
+					shiftKey: e.shiftKey ? 1 : 0,
+					ctrlKey: e.ctrlKey ? 1 : 0
+				},
+				$.context(this, 'updateTarget')
+			);
+		},
+
+		updateTarget: function(ajaxData, textStatus) {
+			if (XenForo.hasResponseError(ajaxData)) {
+				return false;
+			}
+
+			if (ajaxData.updatedNumber) {
+				this.$target.html(ajaxData.updatedNumber);
+
+				if (ajaxData._redirectMessage) {
+					XenForo.alert(ajaxData._redirectMessage, '', 1000);
+				}
+			}
+		}
+	};
+
+	// *********************************************************************
+
+	XenForo.register('a.RotatingAds_PositionAdsLink', 'XenForo.RotatingAds_PositionAdsLink');
+}
+(jQuery, this, document);
+</script>]]></template>
+    <template title="rotating_ads_widget_options"><![CDATA[<xen:textboxunit
+	label="{xen:phrase rotating_ads_widget_position_code}:"
+	name="{$namePrefix}position_code"
+	value="{$options.position_code}"
+	explain="{xen:phrase rotating_ads_widget_position_code_explain}"
+	/>]]></template>
+  </admin_templates>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="file_health_check" execute_order="10" callback_class="RotatingAds_Listener" callback_method="file_health_check" active="1" description=""/>
+    <listener event_id="template_create" execute_order="10" callback_class="RotatingAds_Listener" callback_method="template_create" active="1" description=""/>
+    <listener event_id="template_hook" execute_order="10" callback_class="RotatingAds_Listener" callback_method="template_hook" active="1" description=""/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="RotatingAds_Listener" callback_method="template_post_render" active="1" description=""/>
+    <listener event_id="widget_framework_ready" execute_order="10" callback_class="RotatingAds_Listener" callback_method="widget_framework_ready" active="1" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="admin_navigation_rotating_ads" version_id="1" version_string="0.9"><![CDATA[Rotating Ads]]></phrase>
+    <phrase title="admin_permission_rotating_ads" version_id="1" version_string="0.9"><![CDATA[Manage Rotating Ads]]></phrase>
+    <phrase title="rotating_ads_above" version_id="6" version_string="1.2.2"><![CDATA[Above]]></phrase>
+    <phrase title="rotating_ads_add_new_item" version_id="1" version_string="0.9"><![CDATA[Add New Item]]></phrase>
+    <phrase title="rotating_ads_below" version_id="6" version_string="1.2.2"><![CDATA[Below]]></phrase>
+    <phrase title="rotating_ads_confirm_deletion_of_item" version_id="1" version_string="0.9"><![CDATA[Confirm Deletion of Item]]></phrase>
+    <phrase title="rotating_ads_decrease" version_id="1" version_string="1.0"><![CDATA[decrease]]></phrase>
+    <phrase title="rotating_ads_delete_item" version_id="1" version_string="0.9"><![CDATA[Delete Item]]></phrase>
+    <phrase title="rotating_ads_duplicate" version_id="9" version_string="1.5"><![CDATA[Duplicate]]></phrase>
+    <phrase title="rotating_ads_duplicated_lowercase" version_id="9" version_string="1.5"><![CDATA[duplicated]]></phrase>
+    <phrase title="rotating_ads_edit_item" version_id="1" version_string="0.9"><![CDATA[Edit Item]]></phrase>
+    <phrase title="rotating_ads_expire_date" version_id="3" version_string="1.1.2"><![CDATA[Expire Date]]></phrase>
+    <phrase title="rotating_ads_expire_date_must_be_in_future" version_id="3" version_string="1.1.2"><![CDATA[Expire Date must be in the future!]]></phrase>
+    <phrase title="rotating_ads_has_expire_date" version_id="3" version_string="1.1.2"><![CDATA[has expire date...]]></phrase>
+    <phrase title="rotating_ads_html" version_id="1" version_string="0.9"><![CDATA[HTML]]></phrase>
+    <phrase title="rotating_ads_import_from_file_on_server" version_id="9" version_string="1.5"><![CDATA[Import from file on server]]></phrase>
+    <phrase title="rotating_ads_import_from_uploaded_file" version_id="9" version_string="1.5"><![CDATA[Import from uploaded file]]></phrase>
+    <phrase title="rotating_ads_import_items" version_id="9" version_string="1.5"><![CDATA[Import Items]]></phrase>
+    <phrase title="rotating_ads_increase" version_id="1" version_string="1.0"><![CDATA[increase]]></phrase>
+    <phrase title="rotating_ads_invalid_position_relative_x" version_id="6" version_string="1.2.2"><![CDATA[Invalid Relative Position: {relative}]]></phrase>
+    <phrase title="rotating_ads_invalid_position_x" version_id="6" version_string="1.2.2"><![CDATA[Invalid Position: {position}]]></phrase>
+    <phrase title="rotating_ads_items" version_id="1" version_string="0.9"><![CDATA[Rotating Ads Items]]></phrase>
+    <phrase title="rotating_ads_item_not_found" version_id="1" version_string="0.9"><![CDATA[The requested item could not be found.]]></phrase>
+    <phrase title="rotating_ads_link" version_id="1" version_string="0.9"><![CDATA[Link]]></phrase>
+    <phrase title="rotating_ads_maximum" version_id="1" version_string="1.0"><![CDATA[maximum]]></phrase>
+    <phrase title="rotating_ads_maximum_ads_saved" version_id="3" version_string="1.1.2"><![CDATA[The maximum number of ads has been saved.]]></phrase>
+    <phrase title="rotating_ads_name" version_id="1" version_string="0.9"><![CDATA[Item Name]]></phrase>
+    <phrase title="rotating_ads_please_confirm_that_you_want_to_delete_following_item" version_id="1" version_string="0.9"><![CDATA[Please confirm that you want to delete the following item]]></phrase>
+    <phrase title="rotating_ads_position" version_id="1" version_string="0.9"><![CDATA[Position]]></phrase>
+    <phrase title="rotating_ads_provided_file_is_not_an_items_xml_file" version_id="9" version_string="1.5"><![CDATA[The provided file is not an items XML file.]]></phrase>
+    <phrase title="rotating_ads_save_item" version_id="1" version_string="0.9"><![CDATA[Save Item]]></phrase>
+    <phrase title="rotating_ads_second_poster" global_cache="1" version_id="1" version_string="0.9"><![CDATA[Ads Master]]></phrase>
+    <phrase title="rotating_ads_target_user_groups" version_id="9" version_string="1.5"><![CDATA[Target User Groups]]></phrase>
+    <phrase title="rotating_ads_target_user_groups_explain" version_id="9" version_string="1.5"><![CDATA[If this ad only targets some of your user groups, select them here. Otherwise it will be served to everyone.]]></phrase>
+    <phrase title="rotating_ads_type" version_id="8" version_string="1.4b"><![CDATA[Type]]></phrase>
+    <phrase title="rotating_ads_type_link" version_id="8" version_string="1.4b"><![CDATA[Link]]></phrase>
+    <phrase title="rotating_ads_type_slider" version_id="8" version_string="1.4b"><![CDATA[Slider]]></phrase>
+    <phrase title="rotating_ads_type_slider_height" version_id="8" version_string="1.4b"><![CDATA[Slider Height (px)]]></phrase>
+    <phrase title="rotating_ads_type_slider_width" version_id="8" version_string="1.4b"><![CDATA[Slider Width (px)]]></phrase>
+    <phrase title="rotating_ads_widget_position_code" version_id="4" version_string="1.2"><![CDATA[Position Code]]></phrase>
+    <phrase title="rotating_ads_widget_position_code_explain" version_id="4" version_string="1.2"><![CDATA[It's not required but you should use a unique code to avoid future conflict. Use something like 'my_awesome_ads_position_1' (and move to 2, 3, etc. later). To put ads into the widget, you must use this position code when you create new ad item.]]></phrase>
+    <phrase title="rotating_ads_you_can_select_predefined_position_or_enter_custom" version_id="6" version_string="1.2.2"><![CDATA[Enter custom position here...]]></phrase>
+  </phrases>
+  <route_prefixes>
+    <route_type type="admin">
+      <prefix original_prefix="rotating-ads" class="RotatingAds_Route_PrefixAdmin" build_link="data_only"/>
+    </route_type>
+  </route_prefixes>
+  <style_properties/>
+  <templates>
+    <template title="rotating_ads_second_post" version_id="1" version_string="0.9"><![CDATA[<xen:set var="$messageContentAfterTemplate"><xen:hook name="ad_special_second_post"/></xen:set>
+
+<xen:if is="{$messageContentAfterTemplate}">
+	<xen:include template="message">
+		<xen:map from="$post" to="$message" />
+	</xen:include>
+</xen:if>]]></template>
+    <template title="rotating_ads_slider" version_id="12" version_string="1.6.2"><![CDATA[<style>
+#{$sliderId} {
+	position: relative;
+	<xen:if is="{$slider.width}">width: {$slider.width}px;</xen:if>
+	<xen:if is="{$slider.height}">height: {$slider.height}px;</xen:if>
+	background: url({xen:property imagePath}/RotatingAds/loading.gif) no-repeat 50% 50%;
+}
+#{$sliderId} img {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	display: none;
+}
+#{$sliderId} a {
+	border: 0;
+	display: block;
+}
+</style>
+<div class="slider-wrapper theme-default">
+	<div id="{$sliderId}" class="nivoSlider">
+		<xen:foreach loop="{$slider.slides}" value="$slide">
+			<a href="{$slide.link}"><img src="{$slide.image}" /></a>
+		</xen:foreach>
+	</div>
+</div>
+<script type="text/javascript">
+(function($, window){
+	// $(window).load(function() {
+		$('#{$sliderId}').nivoSlider();
+	// });
+})(jQuery, window);
+</script>]]></template>
+  </templates>
+  <bb_code_media_sites/>
+</addon>
