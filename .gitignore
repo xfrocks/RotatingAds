@@ -1,3 +1,5 @@
 .DS_Store
 *.devhelper
 library/RotatingAds/DevHelper/Generated
+FileSums.php
+js/RotatingAds/slider.js

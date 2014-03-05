@@ -370,16 +370,18 @@ console.log($element);
 	explain="{xen:phrase rotating_ads_widget_position_code_explain}"
 	/>]]></template>
   </admin_templates>
+  <admin_template_modifications/>
   <code_events/>
   <code_event_listeners>
-    <listener event_id="file_health_check" execute_order="10" callback_class="RotatingAds_Listener" callback_method="file_health_check" active="1" description=""/>
-    <listener event_id="template_create" execute_order="10" callback_class="RotatingAds_Listener" callback_method="template_create" active="1" description=""/>
-    <listener event_id="template_hook" execute_order="10" callback_class="RotatingAds_Listener" callback_method="template_hook" active="1" description=""/>
-    <listener event_id="template_post_render" execute_order="10" callback_class="RotatingAds_Listener" callback_method="template_post_render" active="1" description=""/>
-    <listener event_id="widget_framework_ready" execute_order="10" callback_class="RotatingAds_Listener" callback_method="widget_framework_ready" active="1" description=""/>
+    <listener event_id="file_health_check" execute_order="10" callback_class="RotatingAds_Listener" callback_method="file_health_check" active="1" hint="" description=""/>
+    <listener event_id="template_create" execute_order="10" callback_class="RotatingAds_Listener" callback_method="template_create" active="1" hint="" description=""/>
+    <listener event_id="template_hook" execute_order="10" callback_class="RotatingAds_Listener" callback_method="template_hook" active="1" hint="" description=""/>
+    <listener event_id="template_post_render" execute_order="10" callback_class="RotatingAds_Listener" callback_method="template_post_render" active="1" hint="" description=""/>
+    <listener event_id="widget_framework_ready" execute_order="10" callback_class="RotatingAds_Listener" callback_method="widget_framework_ready" active="1" hint="" description=""/>
   </code_event_listeners>
   <cron/>
   <email_templates/>
+  <email_template_modifications/>
   <optiongroups/>
   <permissions>
     <permission_groups/>
@@ -444,38 +446,23 @@ console.log($element);
 		<xen:map from="$post" to="$message" />
 	</xen:include>
 </xen:if>]]></template>
-    <template title="rotating_ads_slider" version_id="12" version_string="1.6.2"><![CDATA[<style>
-#{$sliderId} {
-	position: relative;
-	<xen:if is="{$slider.width}">width: {$slider.width}px;</xen:if>
-	<xen:if is="{$slider.height}">height: {$slider.height}px;</xen:if>
-	background: url({xen:property imagePath}/RotatingAds/loading.gif) no-repeat 50% 50%;
-}
-#{$sliderId} img {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	display: none;
-}
-#{$sliderId} a {
-	border: 0;
-	display: block;
-}
-</style>
+    <template title="rotating_ads_slider" version_id="12" version_string="1.6.2"><![CDATA[<xen:require js="js/RotatingAds/nivo-slider/jquery.nivo.slider.pack.js" />
+<xen:require js="js/RotatingAds/slider.js" />
+
+<xen:set var="$sliderStyle">margin: 0 auto;<xen:comment>
+	</xen:comment><xen:if is="{$slider.width}"> width: {$slider.width}px;</xen:if><xen:comment>
+	</xen:comment><xen:if is="{$slider.height}"> height: {$slider.height}px;</xen:if><xen:comment>
+</xen:comment></xen:set>
+
 <div class="slider-wrapper theme-default">
-	<div id="{$sliderId}" class="nivoSlider">
+	<div id="{$sliderId}" class="bdRotatingAds_Slider nivoSlider" style="{$sliderStyle}">
 		<xen:foreach loop="{$slider.slides}" value="$slide">
 			<a href="{$slide.link}"><img src="{$slide.image}" /></a>
 		</xen:foreach>
 	</div>
-</div>
-<script type="text/javascript">
-(function($, window){
-	// $(window).load(function() {
-		$('#{$sliderId}').nivoSlider();
-	// });
-})(jQuery, window);
-</script>]]></template>
+</div>]]></template>
   </templates>
+  <public_template_modifications/>
   <bb_code_media_sites/>
+  <bb_codes/>
 </addon>
