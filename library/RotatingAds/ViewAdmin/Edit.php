@@ -24,25 +24,6 @@ class RotatingAds_ViewAdmin_Edit extends XenForo_ViewAdmin_Base
 			);
 		}
 		$this->_params['availablePositionRelatives'] = $positionRelatives;
-
-		$this->_params['preparedUserGroups'] = array();
-		if (!empty($this->_params['allUserGroups']))
-		{
-			foreach ($this->_params['allUserGroups'] as $userGroupId => $title)
-			{
-				$tmp = array(
-					'label' => $title,
-					'value' => $userGroupId,
-				);
-
-				if (!empty($this->_params['item']['options']['user_groups']))
-				{
-					$tmp['selected'] = in_array($userGroupId, $this->_params['item']['options']['user_groups']);
-				}
-
-				$this->_params['preparedUserGroups'][] = $tmp;
-			}
-		}
 	}
 
 }

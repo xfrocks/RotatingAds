@@ -41,8 +41,19 @@ class RotatingAds_Engine
 				}
 
 				if (!$targetThis)
+				{
+					// this item doesn't target current user's user group
 					continue;
-				// this item doesn't target current user's user group
+				}
+			}
+			elseif (!empty($item['options']['user_criteria']))
+			{
+				// check for user criteria
+				// since 2.0
+				if (!XenForo_Helper_Criteria::userMatchesCriteria($item['options']['user_criteria']))
+				{
+					continue;
+				}
 			}
 
 			$this->_itemsGrouped[$item['position']][$itemId] = true;

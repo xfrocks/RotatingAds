@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="rotating_ads" title="[bd] Rotating Ads" version_string="1.6.2" version_id="12" url="" install_callback_class="RotatingAds_Installer" install_callback_method="install" uninstall_callback_class="RotatingAds_Installer" uninstall_callback_method="uninstall">
+<addon addon_id="rotating_ads" title="[bd] Rotating Ads" version_string="2.0-dev" version_id="13" url="" install_callback_class="RotatingAds_Installer" install_callback_method="install" uninstall_callback_class="RotatingAds_Installer" uninstall_callback_method="uninstall">
   <admin_navigation>
     <navigation navigation_id="rotating_ads" parent_navigation_id="stylesAndTemplates" display_order="9999" link="rotating-ads" admin_permission_id="rotating_ads" debug_only="0" hide_no_children="0"/>
   </admin_navigation>
@@ -40,91 +40,102 @@
 </style>
 
 <xen:form action="{xen:adminlink 'rotating-ads/save'}" class="AutoValidator" data-redirect="yes">
-	<xen:textboxunit label="{xen:phrase rotating_ads_name}:" name="name" value="{$item.name}" data-liveTitleTemplate="{xen:if {$item.item_id},
-		'{xen:phrase rotating_ads_edit_item}: <em>%s</em>',
-		'{xen:phrase rotating_ads_add_new_item}: <em>%s</em>'}" />
-		
-	<dl class="ctrlUnit">
-		<dt>{xen:phrase rotating_ads_position}:</dt>
-		<dd>
-			<ul>
-				<li>
-					<xen:select name="position" value="{$item.position}" inputclass="RotatingAds_PositionSelector" data-customselector=".RotatingAds_PositionCustom">
-						<xen:option value="">&nbsp;</xen:option>
-						<xen:options source="$availablePositions" />
+
+	<ul class="tabs Tabs" data-panes="#panes > li">
+		<li class="active"><a>{xen:phrase rotating_ads_item_options}</a></li>
+		<li><a>{xen:phrase user_criteria}</a></li>
+		<li><a>{xen:phrase date_criteria}</a></li>
+		<li><a>{xen:phrase custom_userfield_criteria}</a></li>
+	</ul>
+
+	<ul id="panes">
+		<li>
+			<xen:textboxunit label="{xen:phrase rotating_ads_name}:" name="name" value="{$item.name}" data-liveTitleTemplate="{xen:if {$item.item_id},
+				'{xen:phrase rotating_ads_edit_item}: <em>%s</em>',
+				'{xen:phrase rotating_ads_add_new_item}: <em>%s</em>'}" />
+
+			<dl class="ctrlUnit">
+				<dt>{xen:phrase rotating_ads_position}:</dt>
+				<dd>
+					<ul>
+						<li>
+							<xen:select name="position" value="{$item.position}" inputclass="RotatingAds_PositionSelector" data-customselector=".RotatingAds_PositionCustom">
+								<xen:option value="">&nbsp;</xen:option>
+								<xen:options source="$availablePositions" />
+							</xen:select>
+						</li>
+						<li class="RotatingAds_PositionCustom">
+							<xen:textbox name="position_custom" value="{$item.position}" placeholder="{xen:phrase rotating_ads_you_can_select_predefined_position_or_enter_custom}" />
+							<xen:select name="position_relative">
+								<xen:options source="$availablePositionRelatives" />
+							</xen:select>
+						</li>
+					</ul>
+				</dd>
+			</dl>
+
+			<dl class="ctrlUnit">
+				<dt>{xen:phrase rotating_ads_type}:</dt>
+				<dd>
+					<xen:select name="type" value="{$type}" inputclass="RotatingAds_TypeSelector" data-prefix="type_">
+						<xen:option value="link">{xen:phrase rotating_ads_type_link}</xen:option>
+						<xen:option value="slider">{xen:phrase rotating_ads_type_slider}</xen:option>
 					</xen:select>
-				</li>
-				<li class="RotatingAds_PositionCustom">
-					<xen:textbox name="position_custom" value="{$item.position}" placeholder="{xen:phrase rotating_ads_you_can_select_predefined_position_or_enter_custom}" />
-					<xen:select name="position_relative">
-						<xen:options source="$availablePositionRelatives" />
-					</xen:select>
-				</li>
-		</dd>
-	</dl>
+				</dd>
+			</dl>
 
-	<dl class="ctrlUnit">
-		<dt>{xen:phrase rotating_ads_type}:</dt>
-		<dd>
-			<xen:select name="type" value="{$type}" inputclass="RotatingAds_TypeSelector" data-prefix="type_">
-				<xen:option value="link">{xen:phrase rotating_ads_type_link}</xen:option>
-				<xen:option value="slider">{xen:phrase rotating_ads_type_slider}</xen:option>
-			</xen:select>
-		</dd>
-	</dl>
-	
-	<div id="type_link">
-	<xen:textboxunit label="{xen:phrase rotating_ads_link}:" name="link" value="{$item.link}" hint="{xen:phrase optional}"/>
-	<xen:textboxunit label="{xen:phrase rotating_ads_html}:" name="html" value="{$item.html}" rows="5"/>
-	</div>
+			<div id="type_link">
+				<xen:textboxunit label="{xen:phrase rotating_ads_link}:" name="link" value="{$item.link}" hint="{xen:phrase optional}"/>
+				<xen:textboxunit label="{xen:phrase rotating_ads_html}:" name="html" value="{$item.html}" rows="5"/>
+			</div>
 
-	<div id="type_slider">
-	<xen:textboxunit label="{xen:phrase rotating_ads_type_slider_width}:" name="slider[width]" value="{$slider.width}" />
-	<xen:textboxunit label="{xen:phrase rotating_ads_type_slider_height}:" name="slider[height]" value="{$slider.height}" />
-	<dl class="ctrlUnit">
-		<dt>&nbsp;</dt>
-		<dd>
-		<ul>
-			<xen:if is="{$slider}">
-				<xen:foreach loop="$slider.slides" key="$counter" value="$slide">
-				<li>
-					<xen:textbox name="slider[slides][{$counter}][link]" value="{$slide.link}" placeholder="http://" size="15" />
-					<xen:textbox name="slider[slides][{$counter}][image]" value="{$slide.image}" placeholder="http://...jpg|png|gif" size="15" />
-					<xen:textbox name="slider[slides][{$counter}][order]" value="{xen:calc '{$counter} * 10'}" placeholder="{xen:phrase display_order}" size="15" inputclass="RotatingAds_SlideOrder" />
-				</li>
-				</xen:foreach>
-			</xen:if>
-		
-			<li class="RotatingAds_SlidesListener">
-				<xen:textbox name="slider[slides][{xen:count {$slider.slides}}][link]" value="" placeholder="http://" size="15" />
-				<xen:textbox name="slider[slides][{xen:count {$slider.slides}}][image]" value="" placeholder="http://...jpg|png|gif" size="15" />
-				<xen:textbox name="slider[slides][{xen:count {$slider.slides}}][order]" value="{xen:calc '{xen:count {$slider.slides}} * 10'}" placeholder="{xen:phrase display_order}" size="15" inputclass="RotatingAds_SlideOrder" />
-			</li>
-		</ul>
-		</dd>
-	</dl>
-	</div>
+			<div id="type_slider">
+				<xen:textboxunit label="{xen:phrase rotating_ads_type_slider_width}:" name="slider[width]" value="{$slider.width}" />
+				<xen:textboxunit label="{xen:phrase rotating_ads_type_slider_height}:" name="slider[height]" value="{$slider.height}" />
 
-	<dl class="ctrlUnit">
-		<dt>{xen:phrase rotating_ads_expire_date}:</dt>
-		<dd>
-			<ul>
-				<li>
-					<xen:checkbox label="">
-						<xen:option name="has_expire_date" value="1" selected="{$item.expire_date} > 0" id="has_expire_date" inputclass="Disabler">{xen:phrase rotating_ads_has_expire_date}</xen:option>
-					</xen:checkbox>
-				</li>
-				<li><xen:textbox name="expire_date" value="{xen:if '{$item.expire_date} > 0', '{xen:date {$item.expire_date}, 'Y-m-d'}'}" type="date" id="has_expire_date_Disabler"/></li>
-		</dd>
-	</dl>
-	
-	<xen:checkboxunit
-		label="{xen:phrase rotating_ads_target_user_groups}:"
-		name="options[user_groups]"
-		class="checkboxColumns">
-		<xen:options source="$preparedUserGroups" />
-		<xen:explain>{xen:phrase rotating_ads_target_user_groups_explain}</xen:explain>
-	</xen:checkboxunit>
+				<dl class="ctrlUnit">
+					<dt>&nbsp;</dt>
+					<dd>
+						<ul>
+							<xen:if is="{$slider}">
+								<xen:foreach loop="$slider.slides" key="$counter" value="$slide">
+								<li>
+									<xen:textbox name="slider[slides][{$counter}][link]" value="{$slide.link}" placeholder="http://" size="15" />
+									<xen:textbox name="slider[slides][{$counter}][image]" value="{$slide.image}" placeholder="http://...jpg|png|gif" size="15" />
+									<xen:textbox name="slider[slides][{$counter}][order]" value="{xen:calc '{$counter} * 10'}" placeholder="{xen:phrase display_order}" size="15" inputclass="RotatingAds_SlideOrder" />
+								</li>
+								</xen:foreach>
+							</xen:if>
+
+							<li class="RotatingAds_SlidesListener">
+								<xen:textbox name="slider[slides][{xen:count {$slider.slides}}][link]" value="" placeholder="http://" size="15" />
+								<xen:textbox name="slider[slides][{xen:count {$slider.slides}}][image]" value="" placeholder="http://...jpg|png|gif" size="15" />
+								<xen:textbox name="slider[slides][{xen:count {$slider.slides}}][order]" value="{xen:calc '{xen:count {$slider.slides}} * 10'}" placeholder="{xen:phrase display_order}" size="15" inputclass="RotatingAds_SlideOrder" />
+							</li>
+						</ul>
+					</dd>
+				</dl>
+			</div>
+
+			<dl class="ctrlUnit">
+				<dt>{xen:phrase rotating_ads_expire_date}:</dt>
+				<dd>
+					<ul>
+						<li>
+							<xen:checkbox label="">
+								<xen:option name="has_expire_date" value="1" selected="{$item.expire_date} > 0" id="has_expire_date" inputclass="Disabler">{xen:phrase rotating_ads_has_expire_date}</xen:option>
+							</xen:checkbox>
+						</li>
+						<li><xen:textbox name="expire_date" value="{xen:if '{$item.expire_date} > 0', '{xen:date {$item.expire_date}, 'Y-m-d'}'}" type="date" id="has_expire_date_Disabler"/></li>
+					</ul>
+				</dd>
+			</dl>
+		</li>
+
+		<li><xen:include template="helper_criteria_user" /></li>
+		<li><xen:include template="helper_criteria_user_date" /></li>
+		<li><xen:include template="helper_criteria_user_field" /></li>
+	</ul>
 
 	<xen:submitunit save="{xen:phrase rotating_ads_save_item}">
 		<input type="button" name="delete" value="{xen:phrase rotating_ads_delete_item}"
@@ -133,7 +144,7 @@
 			{xen:if '!{$item.item_id}', 'style="display: none"'}
 		/>
 	</xen:submitunit>
-	
+
 	<input type="hidden" name="item_id" value="{$item.item_id}" />
 </xen:form>
 <script type="text/javascript">
@@ -412,6 +423,7 @@ console.log($element);
     <phrase title="rotating_ads_invalid_position_x" version_id="6" version_string="1.2.2"><![CDATA[Invalid Position: {position}]]></phrase>
     <phrase title="rotating_ads_items" version_id="1" version_string="0.9"><![CDATA[Rotating Ads Items]]></phrase>
     <phrase title="rotating_ads_item_not_found" version_id="1" version_string="0.9"><![CDATA[The requested item could not be found.]]></phrase>
+    <phrase title="rotating_ads_item_options" version_id="12" version_string="1.6.2"><![CDATA[Item Options]]></phrase>
     <phrase title="rotating_ads_link" version_id="1" version_string="0.9"><![CDATA[Link]]></phrase>
     <phrase title="rotating_ads_maximum" version_id="1" version_string="1.0"><![CDATA[maximum]]></phrase>
     <phrase title="rotating_ads_maximum_ads_saved" version_id="3" version_string="1.1.2"><![CDATA[The maximum number of ads has been saved.]]></phrase>
@@ -421,8 +433,6 @@ console.log($element);
     <phrase title="rotating_ads_provided_file_is_not_an_items_xml_file" version_id="9" version_string="1.5"><![CDATA[The provided file is not an items XML file.]]></phrase>
     <phrase title="rotating_ads_save_item" version_id="1" version_string="0.9"><![CDATA[Save Item]]></phrase>
     <phrase title="rotating_ads_second_poster" global_cache="1" version_id="1" version_string="0.9"><![CDATA[Ads Master]]></phrase>
-    <phrase title="rotating_ads_target_user_groups" version_id="9" version_string="1.5"><![CDATA[Target User Groups]]></phrase>
-    <phrase title="rotating_ads_target_user_groups_explain" version_id="9" version_string="1.5"><![CDATA[If this ad only targets some of your user groups, select them here. Otherwise it will be served to everyone.]]></phrase>
     <phrase title="rotating_ads_type" version_id="8" version_string="1.4b"><![CDATA[Type]]></phrase>
     <phrase title="rotating_ads_type_link" version_id="8" version_string="1.4b"><![CDATA[Link]]></phrase>
     <phrase title="rotating_ads_type_slider" version_id="8" version_string="1.4b"><![CDATA[Slider]]></phrase>

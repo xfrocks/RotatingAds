@@ -27,7 +27,16 @@ class RotatingAds_ControllerAdmin extends XenForo_ControllerAdmin_Abstract
 
 	public function actionAdd()
 	{
-		$item = array('position_relative' => RotatingAds_DataWriter::POSITION_RELATIVE_BELOW, );
+		$item = array(
+			'position_relative' => RotatingAds_DataWriter::POSITION_RELATIVE_BELOW,
+			'options' => array('user_criteria' => array( array(
+						'rule' => 'not_user_groups',
+						'data' => array('user_group_ids' => array(
+								3,
+								4,
+							))
+					)))
+		);
 
 		return $this->_actionAddEdit($item);
 	}
@@ -42,13 +51,42 @@ class RotatingAds_ControllerAdmin extends XenForo_ControllerAdmin_Abstract
 
 	protected function _actionAddEdit(array $item)
 	{
+		$userCriteria = array();
+		if (!empty($item['options']['user_criteria']))
+		{
+			$userCriteria = $item['options']['user_criteria'];
+		}
+		if (!empty($item['options']['user_groups']))
+		{
+			$userCriteriaUserGroupsFound = false;
+			foreach ($userCriteria as $rule)
+			{
+				if ($rule['rule'] == 'user_groups')
+				{
+					$userCriteriaUserGroupsFound = true;
+				}
+			}
+
+			if (!$userCriteriaUserGroupsFound)
+			{
+				// user criteria array doesn't have user_groups rule yet
+				// and we have an old user_groups option from old version
+				// merge them together
+				$userCriteria[] = array(
+					'rule' => 'user_groups',
+					'data' => array('user_group_ids' => $item['options']['user_groups']),
+				);
+			}
+		}
+
 		$viewParams = array(
 			'item' => $item,
 			'availablePositions' => $this->_getModel()->getAvailablePositions(),
 			'availablePositionRelatives' => $this->_getModel()->getAvailablePositionRelatives(),
 			'type' => 'link',
 
-			'allUserGroups' => $this->getModelFromCache('XenForo_Model_UserGroup')->getAllUserGroupTitles(),
+			'userCriteria' => XenForo_Helper_Criteria::prepareCriteriaForSelection($userCriteria),
+			'userCriteriaData' => XenForo_Helper_Criteria::getDataForUserCriteriaSelection(),
 		);
 
 		if (!empty($item['link']) AND $item['link'] == 'slider')
@@ -77,6 +115,9 @@ class RotatingAds_ControllerAdmin extends XenForo_ControllerAdmin_Abstract
 			'expire_date' => XenForo_Input::DATE_TIME,
 			'options' => XenForo_Input::ARRAY_SIMPLE,
 		));
+
+		$userCriteria = $this->_input->filterSingle('user_criteria', XenForo_Input::ARRAY_SIMPLE);
+		$dwInput['options']['user_criteria'] = XenForo_Helper_Criteria::prepareCriteriaForSave($userCriteria);
 
 		$extraInput = $this->_input->filter(array(
 			'type' => XenForo_Input::STRING,
