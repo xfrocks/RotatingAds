@@ -28,17 +28,6 @@
 </xen:form>]]></template>
     <template title="rotating_ads_edit"><![CDATA[<xen:title>{xen:if '{$item.item_id}', '{xen:phrase rotating_ads_edit_item}', '{xen:phrase rotating_ads_add_new_item}'}</xen:title>
 
-<style>
-.RotatingAds_PositionCustom {
-}
-	.RotatingAds_PositionCustom input {
-		width: 40% !important;
-	}
-	.RotatingAds_PositionCustom select {
-		width: 20% !important;
-	}
-</style>
-
 <xen:form action="{xen:adminlink 'rotating-ads/save'}" class="AutoValidator" data-redirect="yes">
 
 	<ul class="tabs Tabs" data-panes="#panes > li">
@@ -65,8 +54,9 @@
 							</xen:select>
 						</li>
 						<li class="RotatingAds_PositionCustom">
-							<xen:textbox name="position_custom" value="{$item.position}" placeholder="{xen:phrase rotating_ads_you_can_select_predefined_position_or_enter_custom}" />
-							<xen:select name="position_relative">
+							<xen:textbox name="position_custom" value="{$item.position}" inputclass="autoSize"
+										 placeholder="{xen:phrase rotating_ads_you_can_select_predefined_position_or_enter_custom}" />
+							<xen:select name="position_relative" inputclass="autoSize">
 								<xen:options source="$availablePositionRelatives" />
 							</xen:select>
 						</li>
