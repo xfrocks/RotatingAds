@@ -16,7 +16,7 @@ class RotatingAds_Route_PrefixAdmin implements XenForo_Route_Interface
 		{
 			$action = $router->resolveActionWithIntegerOrStringParam($routePath, $request, 'item_id', 'string');
 		}
-		return $router->getRouteMatch('RotatingAds_ControllerAdmin', $action, 'appearance');
+		return $router->getRouteMatch('RotatingAds_ControllerAdmin', $action, 'rotating_ads');
 	}
 
 	public function buildLink($originalPrefix, $outputPrefix, $action, $extension, $data, array &$extraParams)
